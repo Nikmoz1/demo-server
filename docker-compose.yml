@@ -1,0 +1,39 @@
+version: "3.8"
+networks:
+  backend:
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: >
+      sh -c "pipenv run db_upgrade && pipenv run start"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - ./api:/usr/src/app/api
+      - ./files_with_products_data:/usr/src/app/files_with_products_data
+      - ./migrations:/usr/src/app/migrations
+      - ./images:/usr/src/app/images
+      - ./videos:/usr/src/app/videos
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=ok-shop
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data/:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  postgres-data:
